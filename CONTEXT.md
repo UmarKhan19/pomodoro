@@ -32,6 +32,10 @@ _Avoid_: Active task
 An interval that has started but is not counting down, with its remaining time preserved for Resume during the current Timer Run.
 _Avoid_: Ready Interval
 
+**Completion Feedback**:
+A transient indication that an interval ended. It identifies the interval that completed while the next Ready Interval is current; it is not timer state and does not wait for acknowledgment.
+_Avoid_: Completed state, completion screen
+
 **Focus Session**:
 A timed interval reserved for focused work.
 _Avoid_: Work session, pomodoro
