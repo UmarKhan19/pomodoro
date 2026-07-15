@@ -8,9 +8,29 @@ This context defines the language for a personal desktop utility that guides alt
 A personal desktop utility that guides alternating focus and break intervals. It does not manage tasks or measure productivity.
 _Avoid_: Task manager, productivity tracker
 
+**Timer Run**:
+One continuous use of the Pomodoro Timer, beginning when it is opened and ending when it closes. Timer progress is not carried between Timer Runs.
+_Avoid_: Work session, persisted session
+
+**Focus Session Number**:
+The ordinal number of a Focus Session within one Timer Run. It starts at 1 and continues across Pomodoro Cycles until that Timer Run ends.
+_Avoid_: Lifetime count, cycle position
+
 **Pomodoro Cycle**:
 Four Focus Sessions, with a Short Break after each of the first three and a Long Break after the fourth.
 _Avoid_: Three-interval cycle
+
+**Ready Interval**:
+The current Focus Session, Short Break, or Long Break when it is at its full duration and waiting for Start. Completing an interval immediately prepares the next Ready Interval.
+_Avoid_: Completed state, awaiting acknowledgment
+
+**Running Interval**:
+The current interval after Start or Resume while its remaining time is counting down.
+_Avoid_: Active task
+
+**Paused Interval**:
+An interval that has started but is not counting down, with its remaining time preserved for Resume during the current Timer Run.
+_Avoid_: Ready Interval
 
 **Focus Session**:
 A timed interval reserved for focused work.
