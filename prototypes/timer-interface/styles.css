@@ -1,0 +1,778 @@
+/* THROWAWAY PROTOTYPE — selected visual direction, not production styles. */
+
+:root {
+  color-scheme: light;
+  --font-ui: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bg: oklch(1 0 0);
+  --surface: oklch(0.965 0.006 48);
+  --surface-strong: oklch(0.925 0.01 48);
+  --ink: oklch(0.18 0.012 48);
+  --muted: oklch(0.45 0.018 48);
+  --line: oklch(0.84 0.012 48);
+  --primary: oklch(0.55 0.16 47.7);
+  --primary-strong: oklch(0.48 0.15 47.7);
+  --primary-soft: oklch(0.94 0.035 47.7);
+  --primary-text: var(--primary);
+  --accent: oklch(0.5 0.12 235);
+  --accent-soft: oklch(0.93 0.035 235);
+  --on-primary: oklch(0.99 0 0);
+  --focus-ring: oklch(0.59 0.16 235);
+  --shadow: oklch(0.12 0 0 / 0.16);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: oklch(0.105 0 0);
+  --surface: oklch(0.16 0.006 48);
+  --surface-strong: oklch(0.215 0.009 48);
+  --ink: oklch(0.94 0.006 48);
+  --muted: oklch(0.7 0.012 48);
+  --line: oklch(0.31 0.012 48);
+  --primary: oklch(0.55 0.16 47.7);
+  --primary-strong: oklch(0.48 0.15 47.7);
+  --primary-soft: oklch(0.24 0.055 47.7);
+  --primary-text: oklch(0.72 0.14 47.7);
+  --accent: oklch(0.69 0.11 235);
+  --accent-soft: oklch(0.235 0.05 235);
+  --on-primary: oklch(0.99 0 0);
+  --focus-ring: oklch(0.72 0.12 235);
+  --shadow: oklch(0 0 0 / 0.4);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.4;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+select {
+  color: inherit;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+button:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 200;
+  top: 8px;
+  left: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--bg);
+  transform: translateY(-160%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.timer-shell {
+  position: relative;
+  isolation: isolate;
+  width: 100vw;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  padding-bottom: 72px;
+  background: var(--bg);
+}
+
+.app-header {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 24px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 680;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.brand-mark {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--primary);
+  stroke-linecap: round;
+  stroke-width: 1.8;
+}
+
+.theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+}
+
+.theme-option {
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.theme-option:hover {
+  color: var(--ink);
+}
+
+.theme-option[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.interval-name {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.timer-value {
+  display: block;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 660;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.state-instruction {
+  color: var(--muted);
+}
+
+.state-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.state-glyph {
+  display: inline-block;
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.state-ready {
+  color: var(--primary-text);
+}
+
+.state-running {
+  color: var(--accent);
+}
+
+.state-running .state-glyph {
+  border-color: var(--accent);
+  background: var(--accent);
+  animation: state-pulse 1.8s ease-out infinite;
+}
+
+.state-paused .state-glyph {
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(90deg, currentColor 0 35%, transparent 35% 65%, currentColor 65% 100%);
+}
+
+@keyframes state-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.5 0.12 235 / 0);
+  }
+  35% {
+    box-shadow: 0 0 0 5px oklch(0.5 0.12 235 / 0.16);
+  }
+}
+
+.timer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.button {
+  min-height: 42px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition:
+    background-color 180ms ease-out,
+    color 180ms ease-out,
+    transform 180ms ease-out;
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.button-primary {
+  min-width: 106px;
+  border: 1px solid transparent;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.button-primary:hover {
+  background: var(--primary-strong);
+}
+
+.button-secondary {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+
+.button-secondary:hover:not(:disabled) {
+  background: var(--surface);
+}
+
+.button:disabled {
+  color: var(--muted);
+  opacity: 0.48;
+}
+
+.completion-toast {
+  position: absolute;
+  z-index: 20;
+  top: 78px;
+  right: 24px;
+  display: grid;
+  width: min(360px, calc(100vw - 48px));
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 4px 8px var(--shadow);
+  animation: toast-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.toast-icon {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-weight: 800;
+}
+
+.toast-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.toast-copy strong {
+  font-size: 0.875rem;
+}
+
+.toast-copy span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.toast-close {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.toast-close:hover {
+  background: var(--surface-strong);
+  color: var(--ink);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* Selected Horizon + Cadence direction */
+
+.horizon-image {
+  position: absolute;
+  z-index: -3;
+  inset: 0 0 0 auto;
+  width: 68%;
+  background: url("./assets/horizon.webp") center / cover no-repeat;
+  filter: saturate(0.82) contrast(0.98);
+  mask-image: linear-gradient(90deg, transparent 0%, black 34%, black 100%);
+  opacity: 0.92;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 34%, black 100%);
+}
+
+:root[data-theme="dark"] .horizon-image {
+  filter: saturate(0.68) brightness(0.6) contrast(1.04);
+  opacity: 0.84;
+}
+
+.horizon-scrim {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background: linear-gradient(90deg, var(--bg) 0%, var(--bg) 36%, transparent 71%);
+  pointer-events: none;
+}
+
+.horizon-stage {
+  position: relative;
+  display: grid;
+  min-height: calc(100dvh - 144px);
+  grid-template-columns: minmax(330px, 0.9fr) minmax(260px, 1.1fr);
+  align-items: center;
+  padding: 18px clamp(28px, 6vw, 76px) 28px;
+}
+
+.horizon-copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  max-width: 520px;
+  justify-items: start;
+  gap: 13px;
+  transform: translateY(-32px);
+}
+
+.horizon-copy .interval-name {
+  margin-top: 12px;
+}
+
+.horizon-time {
+  margin-left: -0.055em;
+  font-size: clamp(4.8rem, 10vw, 7.2rem);
+}
+
+.horizon-instruction {
+  min-height: 1.4em;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.horizon-progress {
+  width: min(360px, 100%);
+  height: 3px;
+  overflow: hidden;
+  margin: 5px 0;
+  border-radius: 999px;
+  background: var(--surface-strong);
+}
+
+.horizon-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+  transform: scaleX(var(--progress));
+  transform-origin: left center;
+  transition: transform 500ms linear;
+}
+
+.horizon-context-copy {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 10px;
+}
+
+.horizon-context-copy strong {
+  font-size: 0.9rem;
+}
+
+.horizon-context-copy span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.horizon-cadence {
+  position: absolute;
+  right: clamp(24px, 4vw, 52px);
+  bottom: 24px;
+  width: min(610px, 61vw);
+  padding: 14px 16px 13px;
+  border-radius: 12px;
+  background: oklch(0.1 0 0 / 0.88);
+  color: oklch(0.97 0 0);
+}
+
+.horizon-cadence header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 12px;
+}
+
+.horizon-cadence header strong {
+  font-size: 0.78rem;
+}
+
+.horizon-cadence header span {
+  color: oklch(0.74 0 0);
+  font-size: 0.68rem;
+}
+
+.horizon-cadence ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(104px, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.horizon-cadence li {
+  position: relative;
+  min-width: 0;
+}
+
+.horizon-cadence li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 12px;
+  left: 24px;
+  width: calc(100% - 18px);
+  height: 1px;
+  background: oklch(0.7 0 0 / 0.35);
+}
+
+.cadence-focus {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+}
+
+.cadence-focus > span:last-child {
+  display: grid;
+  min-width: 0;
+}
+
+.cadence-focus strong {
+  overflow: hidden;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cadence-focus small,
+.cadence-break small {
+  color: oklch(0.7 0 0);
+  font-size: 0.61rem;
+}
+
+.cadence-node {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid oklch(0.72 0 0 / 0.65);
+  border-radius: 50%;
+  background: oklch(0.1 0 0);
+  color: oklch(0.88 0 0);
+  font-size: 0.64rem;
+  font-weight: 800;
+}
+
+.cadence-break {
+  display: flex;
+  min-width: 0;
+  justify-content: space-between;
+  gap: 4px;
+  margin: 6px 12px 0 31px;
+  color: oklch(0.76 0 0);
+  font-size: 0.62rem;
+  white-space: nowrap;
+}
+
+.horizon-cadence .is-past .cadence-node,
+.horizon-cadence .is-current:not(.is-break) .cadence-node {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.horizon-cadence .is-current:not(.is-break) .cadence-node {
+  box-shadow: 0 0 0 3px oklch(0.98 0 0 / 0.24);
+}
+
+.horizon-cadence .is-current .cadence-focus strong {
+  color: oklch(0.99 0 0);
+}
+
+.horizon-cadence .is-break .cadence-node {
+  border-color: var(--accent);
+  background: oklch(0.1 0 0);
+  box-shadow: 0 0 0 3px oklch(0.7 0.11 235 / 0.2);
+  color: oklch(0.82 0.1 235);
+}
+
+.horizon-cadence .is-break .cadence-break {
+  color: oklch(0.82 0.1 235);
+  font-weight: 750;
+}
+
+/* Prototype-only state controls */
+
+#prototype-ui {
+  position: fixed;
+  z-index: 100;
+  bottom: 12px;
+  left: 50%;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  color: oklch(0.96 0 0);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.prototype-state-tools {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 11px;
+  background: oklch(0.12 0 0);
+  box-shadow: 0 4px 8px oklch(0 0 0 / 0.28);
+  pointer-events: auto;
+}
+
+.prototype-tag {
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: oklch(0.28 0 0);
+  color: oklch(0.86 0 0);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.prototype-state-tools label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prototype-state-tools label > span {
+  color: oklch(0.76 0 0);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.prototype-state-tools select,
+.prototype-state-tools button {
+  min-height: 32px;
+  border: 0;
+  border-radius: 7px;
+  background: oklch(0.24 0 0);
+  color: oklch(0.96 0 0);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.prototype-state-tools select {
+  max-width: 210px;
+  padding: 5px 28px 5px 8px;
+}
+
+.prototype-state-tools button {
+  padding: 5px 9px;
+}
+
+.prototype-state-tools button:hover {
+  background: oklch(0.34 0 0);
+}
+
+@media (max-width: 800px) {
+  .app-header {
+    min-height: 64px;
+    padding: 12px 16px;
+  }
+
+  .horizon-stage {
+    grid-template-columns: minmax(290px, 1fr) 0.65fr;
+    padding-inline: 24px;
+  }
+
+  .horizon-cadence {
+    right: 20px;
+    width: min(560px, calc(100vw - 284px));
+  }
+
+  .prototype-state-tools label > span,
+  .prototype-tag {
+    display: none;
+  }
+
+  .prototype-state-tools select {
+    max-width: 168px;
+  }
+}
+
+@media (max-width: 640px) {
+  .brand > span {
+    display: none;
+  }
+
+  .theme-option {
+    padding-inline: 7px;
+  }
+
+  .horizon-image {
+    width: 100%;
+    opacity: 0.42;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .horizon-scrim {
+    background: var(--bg);
+    opacity: 0.72;
+  }
+
+  .horizon-stage {
+    display: block;
+    padding: 28px 22px 178px;
+  }
+
+  .horizon-copy {
+    max-width: 100%;
+    transform: none;
+  }
+
+  .horizon-cadence {
+    right: 12px;
+    bottom: 16px;
+    width: calc(100vw - 24px);
+    overflow-x: auto;
+  }
+
+  .horizon-cadence ol {
+    min-width: 520px;
+  }
+
+  .prototype-state-tools button {
+    display: none;
+  }
+
+  .prototype-state-tools select {
+    width: 164px;
+  }
+}
+
+@media (max-height: 650px) {
+  .app-header {
+    min-height: 58px;
+    padding-block: 10px;
+  }
+
+  .horizon-stage {
+    min-height: calc(100dvh - 130px);
+  }
+
+  .horizon-copy {
+    gap: 8px;
+    transform: translateY(-24px);
+  }
+
+  .horizon-time {
+    font-size: 5rem;
+  }
+
+  .horizon-cadence {
+    bottom: 16px;
+    padding-block: 10px;
+  }
+
+  .horizon-cadence header {
+    margin-bottom: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
