@@ -9,7 +9,7 @@ A personal desktop utility that guides alternating focus and break intervals. It
 _Avoid_: Task manager, productivity tracker
 
 **Timer Run**:
-One continuous use of the Pomodoro Timer, beginning when it is opened and ending when it closes. Timer progress is not carried between Timer Runs.
+One continuous use of the Pomodoro Timer, beginning when the app opens and ending when the app exits. Recovering the visible interface while the app remains open does not begin a new Timer Run. Timer progress is not carried between Timer Runs.
 _Avoid_: Work session, persisted session
 
 **Focus Session Number**:
