@@ -6,6 +6,7 @@ const SCENARIOS = [
   { key: 'focus-paused', label: 'Focus Session 5 · Paused' },
   { key: 'short-ready', label: 'Short Break · Ready' },
   { key: 'long-ready', label: 'Long Break · Ready' },
+  { key: 'focus-1000', label: 'Focus Session 1000 · Ready' },
   { key: 'focus-complete', label: 'Focus complete · Feedback' },
   { key: 'break-complete', label: 'Break complete · Feedback' },
 ]
@@ -19,9 +20,13 @@ const DURATIONS = {
 const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
 const prototypeHost = document.querySelector('#prototype-ui')
 const appHost = document.querySelector('#timer-app')
+const prototypeControlsPreference = new URLSearchParams(
+  window.location.search,
+).get('prototypeControls')
 const showPrototypeUi =
-  ['localhost', '127.0.0.1'].includes(window.location.hostname) ||
-  window.location.search.includes('prototypeControls=1')
+  prototypeControlsPreference === '1' ||
+  (prototypeControlsPreference !== '0' &&
+    ['localhost', '127.0.0.1'].includes(window.location.hostname))
 
 let themePreference = readThemePreference()
 let state = scenarioState(readScenario())
@@ -40,6 +45,7 @@ systemTheme.addEventListener('change', () => {
 appHost.addEventListener('click', handleAppClick)
 prototypeHost.addEventListener('click', handlePrototypeClick)
 prototypeHost.addEventListener('change', handlePrototypeChange)
+document.addEventListener('keydown', handleKeydown)
 
 function readThemePreference() {
   const requested = new URLSearchParams(window.location.search).get('theme')
@@ -55,12 +61,18 @@ function readThemePreference() {
 
 function readScenario() {
   const requested = new URLSearchParams(window.location.search).get('scenario')
-  return SCENARIOS.some(({ key }) => key === requested) ? requested : 'focus-ready'
+  return SCENARIOS.some(({ key }) => key === requested)
+    ? requested
+    : 'focus-ready'
 }
 
 function applyTheme() {
   const resolved =
-    themePreference === 'system' ? (systemTheme.matches ? 'dark' : 'light') : themePreference
+    themePreference === 'system'
+      ? systemTheme.matches
+        ? 'dark'
+        : 'light'
+      : themePreference
   document.documentElement.dataset.themePreference = themePreference
   document.documentElement.dataset.theme = resolved
 }
@@ -78,7 +90,11 @@ function scenarioState(key) {
 
   switch (key) {
     case 'focus-running':
-      return runningState({ ...base, status: 'running', remaining: 14 * 60 + 32 })
+      return runningState({
+        ...base,
+        status: 'running',
+        remaining: 14 * 60 + 32,
+      })
     case 'focus-paused':
       return { ...base, status: 'paused', remaining: 11 * 60 + 47 }
     case 'short-ready':
@@ -90,6 +106,8 @@ function scenarioState(key) {
         focusNumber: 8,
         remaining: DURATIONS.long,
       }
+    case 'focus-1000':
+      return { ...base, focusNumber: 1000 }
     case 'focus-complete':
       return {
         ...base,
@@ -161,23 +179,29 @@ function handleAppClick(event) {
   if (!actionTarget || actionTarget.disabled) return
 
   const { action, value } = actionTarget.dataset
-  if (action === 'theme') setTheme(value)
+  if (action === 'theme') {
+    setTheme(value, `[data-action="theme"][data-value="${value}"]`)
+    return
+  }
   if (action === 'start' && state.status === 'ready') {
     window.clearTimeout(toastTimeout)
     state = runningState({ ...state, status: 'running', toast: null })
     markInteractive()
     render('[data-action="pause"]')
+    return
   }
   if (action === 'pause' && state.status === 'running') {
     if (!reconcileRemaining()) return
     state = { ...state, status: 'paused', deadline: null }
     markInteractive()
     render('[data-action="resume"]')
+    return
   }
   if (action === 'resume' && state.status === 'paused') {
     state = runningState({ ...state, status: 'running' })
     markInteractive()
     render('[data-action="pause"]')
+    return
   }
   if (action === 'reset' && state.status !== 'ready') {
     if (state.status === 'running' && !reconcileRemaining()) return
@@ -189,6 +213,7 @@ function handleAppClick(event) {
     }
     markInteractive()
     render('[data-action="start"]')
+    return
   }
   if (action === 'dismiss-toast') dismissToast(true)
 }
@@ -202,7 +227,11 @@ function handlePrototypeChange(event) {
   if (event.target.matches('[data-scenario]')) setScenario(event.target.value)
 }
 
-function setTheme(value) {
+function handleKeydown(event) {
+  if (event.key === 'Escape' && state.toast) dismissToast(true)
+}
+
+function setTheme(value, requestedFocusSelector) {
   if (!['system', 'dark', 'light'].includes(value)) return
   themePreference = value
   try {
@@ -214,7 +243,7 @@ function setTheme(value) {
   url.searchParams.set('theme', value)
   window.history.replaceState({}, '', url)
   applyTheme()
-  render(`[data-action="theme"][data-value="${value}"]`)
+  render(requestedFocusSelector)
 }
 
 function reconcileRemaining() {
@@ -248,7 +277,8 @@ function completeInterval() {
       toast,
     }
   } else {
-    const completedLabel = completedInterval === 'long' ? 'Long Break' : 'Short Break'
+    const completedLabel =
+      completedInterval === 'long' ? 'Long Break' : 'Short Break'
     const nextFocusNumber = completedFocusNumber + 1
     toast = {
       title: `${completedLabel} complete`,
@@ -283,18 +313,29 @@ function dismissToast(returnFocusToTimer = false) {
   window.clearTimeout(toastTimeout)
   if (!state.toast) return
   state.toast = null
-  render(returnFocusToTimer ? '#timer-app-main' : undefined)
+  render(
+    returnFocusToTimer
+      ? '[data-action="start"], [data-action="pause"], [data-action="resume"]'
+      : undefined,
+  )
 }
 
 function render(requestedFocusSelector) {
   const focusSelector = requestedFocusSelector ?? captureFocusSelector()
   appHost.innerHTML = renderSelectedHorizon()
   prototypeHost.innerHTML = showPrototypeUi ? renderPrototypeUi() : ''
-  document.title = 'Horizon + Cadence · Timer Prototype'
+  document.title = 'Horizon + Cadence Timer Prototype'
 
   if (focusSelector) {
-    window.queueMicrotask(() => document.querySelector(focusSelector)?.focus())
+    window.queueMicrotask(() => focusFirstVisible(focusSelector))
   }
+}
+
+function focusFirstVisible(selector) {
+  const element = [...document.querySelectorAll(selector)].find(
+    (candidate) => !candidate.disabled && candidate.getClientRects().length > 0,
+  )
+  element?.focus()
 }
 
 function captureFocusSelector() {
@@ -328,31 +369,84 @@ function updateCountdownVisuals() {
 
 function renderSelectedHorizon() {
   return `
-    <main class="timer-shell horizon-selected" id="timer-app-main" tabindex="-1">
-      <div class="horizon-image" aria-hidden="true"></div>
-      <div class="horizon-scrim" aria-hidden="true"></div>
-      ${renderHeader()}
+    <main
+      class="timer-shell horizon-selected ${state.toast ? 'has-feedback' : ''}"
+      id="timer-app-main"
+      tabindex="-1"
+    >
+      <div class="full-interface">
+        <div class="horizon-image" aria-hidden="true"></div>
+        <div class="horizon-scrim" aria-hidden="true"></div>
+        ${renderHeader()}
 
-      <section class="horizon-stage" aria-labelledby="horizon-title">
-        <div class="horizon-copy">
-          ${renderStateBadge()}
-          <p class="interval-name" id="horizon-title">${intervalName()}</p>
-          <time class="timer-value horizon-time" datetime="PT${state.remaining}S">${formatTime(state.remaining)}</time>
-          <p class="state-instruction horizon-instruction">${stateInstruction()}</p>
-          <div class="horizon-progress" aria-hidden="true">
-            <span style="--progress: ${remainingRatio()}"></span>
+        <section class="horizon-stage" aria-labelledby="horizon-title">
+          <div class="horizon-copy">
+            ${renderStateBadge()}
+            <p class="interval-name" id="horizon-title">${intervalName()}</p>
+            <time class="timer-value horizon-time" datetime="PT${state.remaining}S">${formatTime(state.remaining)}</time>
+            <p class="state-instruction horizon-instruction">${stateInstruction()}</p>
+            <div class="horizon-progress" aria-hidden="true">
+              <span style="--progress: ${remainingRatio()}"></span>
+            </div>
+            <div class="horizon-context-copy">
+              <strong>${focusContext()}</strong>
+              <span>${cyclePositionLabel()}</span>
+            </div>
+            ${renderTimerControls()}
           </div>
-          <div class="horizon-context-copy">
-            <strong>${focusContext()}</strong>
-            <span>${cyclePositionLabel()}</span>
-          </div>
-          ${renderTimerControls()}
-        </div>
 
-        ${renderHorizonCadenceRail()}
-      </section>
-      ${renderToast()}
+          ${renderHorizonCadenceRail()}
+        </section>
+        ${renderFullToast()}
+      </div>
+      ${renderCompactInterface()}
     </main>
+  `
+}
+
+function renderCompactInterface() {
+  return `
+    <section class="compact-interface" aria-label="${intervalName()} timer">
+      ${renderCompactFeedback()}
+      <div class="compact-instrument">
+        <div class="compact-title-row">
+          ${renderCompactTitle()}
+          ${renderStateBadge()}
+        </div>
+        ${renderCompactTime()}
+        ${renderTimerControls({ compact: true })}
+        ${renderCompactContext()}
+      </div>
+    </section>
+  `
+}
+
+function renderCompactTitle() {
+  const title =
+    state.interval === 'focus'
+      ? `Focus Session ${state.focusNumber}`
+      : intervalName()
+
+  return `<p class="compact-title" id="compact-timer-title">${title}</p>`
+}
+
+function renderCompactContext() {
+  const cycleContext = `${cycleLabel()} · position ${cyclePosition()} of 4`
+  const context =
+    state.interval === 'focus'
+      ? cycleContext
+      : `After Focus Session ${state.focusNumber} · ${cycleContext}`
+
+  return `<p class="compact-context">${context}</p>`
+}
+
+function renderCompactTime() {
+  return `
+    <time
+      class="timer-value compact-time"
+      datetime="PT${state.remaining}S"
+      aria-label="${formatAccessibleTime(state.remaining)} remaining"
+    >${formatTime(state.remaining)}</time>
   `
 }
 
@@ -399,14 +493,14 @@ function renderThemeSwitcher() {
 
 function renderStateBadge() {
   return `
-    <span class="state-badge state-${state.status}">
+    <span class="state-badge state-${state.status} interval-${state.interval}">
       <span class="state-glyph" aria-hidden="true"></span>
       ${capitalize(state.status)}
     </span>
   `
 }
 
-function renderTimerControls() {
+function renderTimerControls({ compact = false } = {}) {
   const primaryAction =
     state.status === 'ready'
       ? { action: 'start', label: 'Start' }
@@ -415,7 +509,7 @@ function renderTimerControls() {
         : { action: 'resume', label: 'Resume' }
 
   return `
-    <div class="timer-controls" aria-label="Timer controls">
+    <div class="timer-controls ${compact ? 'compact-timer-controls' : ''}" aria-label="Timer controls">
       <button class="button button-primary" type="button" data-action="${primaryAction.action}">
         ${primaryAction.label}
       </button>
@@ -423,8 +517,9 @@ function renderTimerControls() {
         class="button button-secondary"
         type="button"
         data-action="reset"
+        ${compact ? 'aria-label="Reset Current Interval"' : ''}
         ${state.status === 'ready' ? 'disabled' : ''}
-      >Reset current interval</button>
+      >${compact ? 'Reset' : 'Reset current interval'}</button>
     </div>
   `
 }
@@ -445,8 +540,10 @@ function renderHorizonCadenceRail() {
             const focusNumber = baseFocusNumber + position - 1
             const breakName = position === 4 ? 'Long Break' : 'Short Break'
             const breakMinutes = position === 4 ? 15 : 5
-            const focusCurrent = position === currentPosition && state.interval === 'focus'
-            const breakCurrent = position === currentPosition && state.interval !== 'focus'
+            const focusCurrent =
+              position === currentPosition && state.interval === 'focus'
+            const breakCurrent =
+              position === currentPosition && state.interval !== 'focus'
             const completed = position < currentPosition || breakCurrent
             const classes = [
               completed ? 'is-past' : '',
@@ -475,7 +572,7 @@ function renderHorizonCadenceRail() {
   `
 }
 
-function renderToast() {
+function renderFullToast() {
   if (!state.toast) return ''
 
   return `
@@ -486,6 +583,20 @@ function renderToast() {
         <span>${state.toast.message}</span>
       </div>
       <button class="toast-close" type="button" data-action="dismiss-toast" aria-label="Dismiss completion feedback">×</button>
+    </aside>
+  `
+}
+
+function renderCompactFeedback() {
+  if (!state.toast) return ''
+
+  return `
+    <aside class="compact-feedback" role="status" aria-live="polite" aria-atomic="true">
+      <div class="compact-feedback-copy">
+        <strong>${state.toast.title}</strong>
+        <span>${state.toast.message}</span>
+      </div>
+      <button class="compact-feedback-close" type="button" data-action="dismiss-toast" aria-label="Dismiss completion feedback">×</button>
     </aside>
   `
 }
@@ -502,7 +613,8 @@ function renderPrototypeUi() {
         <span>Test state</span>
         <select data-scenario aria-label="Test timer state">
           ${SCENARIOS.map(
-            ({ key, label }) => `<option value="${key}" ${selectedScenario === key ? 'selected' : ''}>${label}</option>`,
+            ({ key, label }) =>
+              `<option value="${key}" ${selectedScenario === key ? 'selected' : ''}>${label}</option>`,
           ).join('')}
           <option value="custom" ${selectedScenario === 'custom' ? 'selected' : ''} disabled>Interactive state</option>
         </select>
@@ -547,7 +659,8 @@ function cycleLabel() {
 }
 
 function cyclePositionLabel() {
-  const relationship = state.interval === 'focus' ? 'position' : 'Break after position'
+  const relationship =
+    state.interval === 'focus' ? 'position' : 'Break after position'
   return `${relationship} ${cyclePosition()} of 4`
 }
 
@@ -559,6 +672,14 @@ function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
+function formatAccessibleTime(totalSeconds) {
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  const minuteLabel = `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+  const secondLabel = `${seconds} ${seconds === 1 ? 'second' : 'seconds'}`
+  return `${minuteLabel} ${secondLabel}`
 }
 
 function capitalize(value) {
