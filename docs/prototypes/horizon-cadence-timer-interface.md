@@ -1,6 +1,6 @@
 # Horizon + Cadence timer interface
 
-Resolution asset for [Prototype the compact timer interface and themes](https://github.com/UmarKhan19/pomodoro/issues/6), selected with live feedback on 2026-07-15.
+Resolution asset for [Prototype the compact timer interface and themes](https://github.com/UmarKhan19/pomodoro/issues/6) and [Preserve progression and theme access in Compact mode](https://github.com/UmarKhan19/pomodoro/issues/11), selected and refined with live feedback on 2026-07-15 and 2026-07-16.
 
 ## Question
 
@@ -24,7 +24,7 @@ This preserves Horizon’s modern, calm atmosphere without asking the user to in
 4. **Timer Run context:** the current Focus Session Number or associated Focus Session appears with its position in the Pomodoro Cycle.
 5. **Actions:** the valid Start, Pause, or Resume action is primary; Reset Current Interval remains secondary and is disabled for a Ready Interval.
 6. **Cadence:** the lower rail shows the four Focus Sessions in the current Pomodoro Cycle and the Break following each one.
-7. **Theme:** System, Dark, and Light remain available in a compact switcher at the top right.
+7. **Theme:** System, Dark, and Light remain available in the Full-mode switcher. Compact mode keeps the selected theme but intentionally omits theme controls.
 
 ## Pomodoro Cycle rail
 
@@ -42,7 +42,7 @@ The numbers advance with the Timer Run rather than resetting visually to 1 each 
 - **Ready Interval:** shows Start and a disabled Reset Current Interval.
 - **Running Interval:** shows Pause and Reset Current Interval while the progress rule and remaining time advance.
 - **Paused Interval:** shows Resume and Reset Current Interval; the copy states that remaining time is held.
-- **Completion Feedback:** appears as a non-modal toast at the upper right while the newly prepared Ready Interval is already visible. Start dismisses it.
+- **Completion Feedback:** appears as a non-modal upper-right toast in Full mode and a quiet layout-participating banner in Compact mode while the newly prepared Ready Interval is already visible. Start dismisses it.
 - **Breaks:** retain the same hierarchy as Focus Sessions. A related blue accent distinguishes the active Break in the cadence rail without carrying meaning alone.
 
 ## Visual direction
@@ -60,12 +60,15 @@ The current mountain image is a resized placeholder derived from an existing loc
 
 - Target WCAG 2.2 AA.
 - Full keyboard operation, visible focus, reduced-motion handling, sufficient contrast, and no color-only state cues.
-- The cadence rail remains below the timer at a compact 800×600 viewport rather than obscuring controls.
-- The selected prototype scored 100 in Lighthouse accessibility audits in both Light and Dark themes. An interactive smoke test covered Start, countdown, Pause, Reset, Completion Feedback dismissal on Start, theme persistence, and keyboard-focus continuity across state changes.
+- The cadence rail remains below the timer at the 800×600 Full-mode boundary rather than obscuring controls.
+- Below either Full-mode boundary, the selected Compact direction becomes a centered, timer-first instrument. A small muted title and state label sit above the dominant time; the accented state marker preserves shape and color context; restrained desktop-sized controls follow; and one muted line retains Focus Session Number and Pomodoro Cycle position.
+- Compact theme controls are intentionally absent. The persisted effective theme stays applied, and resizing to Full mode restores the three-way selector.
+- At 320×240, Completion Feedback, title, time, controls, and progression context fit without clipping or horizontal scroll. Compact targets remain above WCAG 2.2’s 24×24 minimum without adopting oversized mobile controls.
+- The original selected prototype scored 100 in Lighthouse accessibility audits in both Light and Dark themes. Interactive smoke checks cover Start, countdown, Pause, Reset, Completion Feedback dismissal on Start, theme persistence, keyboard-focus continuity, all responsive boundaries, and the selected Compact direction in both themes.
 
 ## Prototype source
 
-The selected throwaway source is in [`prototypes/timer-interface/`](../../prototypes/timer-interface/README.md). It includes scenario controls for Ready, Running, Paused, Short Break, Long Break, and Completion Feedback. Those controls are prototype-only and must not ship.
+The selected throwaway source is in [`prototypes/timer-interface/`](../../prototypes/timer-interface/README.md). It includes scenario controls for Ready, Running, Paused, Short Break, Long Break, large Focus Session Numbers, and Completion Feedback. Those controls are prototype-only and must not ship.
 
 ## Screenshots
 
@@ -77,10 +80,14 @@ The selected throwaway source is in [`prototypes/timer-interface/`](../../protot
 
 ![Horizon + Cadence showing a completed Focus Session and prepared Short Break in the Dark theme](./assets/horizon-cadence-completion-feedback-dark.webp)
 
-### Paused compact window — Light
+### Paused 800×600 Full-mode boundary — Light
 
-![Horizon + Cadence showing Focus Session 5 Paused at an 800 by 600 viewport](./assets/horizon-cadence-paused-compact-light.webp)
+![Horizon + Cadence showing Focus Session 5 Paused at the 800 by 600 Full-mode boundary](./assets/horizon-cadence-paused-compact-light.webp)
 
-## Remaining specification work
+### Selected 320×240 Compact direction — Light
 
-The production image source and rights, exact visual tokens, component-state details, and minimum supported content dimensions remain to be specified before implementation. The prototype establishes the interface direction rather than production-ready code or assets.
+![Selected centered Compact interface with subtle Focus Session 5 and Ready context, dominant 25 minute timer, restrained controls, and Pomodoro Cycle position](./assets/horizon-cadence-compact-selected-light.webp)
+
+## Production specification
+
+The framework-independent production contract, including approved assets, exact tokens, responsive dimensions, Compact-mode copy and measurements, component states, and acceptance checks, lives in [`DESIGN.md`](../../DESIGN.md). The prototype establishes and demonstrates the selected direction; it is not production code.

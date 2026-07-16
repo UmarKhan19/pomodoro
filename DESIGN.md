@@ -142,32 +142,40 @@ Layout requirements:
 
 ### Compact mode
 
-Compact mode removes the image, header, brand, theme switcher, state instruction, progress rule, Focus Session Number context, Pomodoro Cycle context, and cadence rail. Hidden Full-mode content must also be absent from the accessibility tree.
+Compact mode removes the image, header, brand, theme switcher, state instruction, progress rule, and cadence rail. It preserves the Focus Session Number and Pomodoro Cycle context in a quieter, centered timer instrument. Hidden Full-mode content must also be absent from the accessibility tree.
 
-Compact mode contains only:
+The Compact instrument contains, in order:
 
-1. an identifying line in the exact form `<Interval> · <State>`;
-2. remaining time;
-3. the primary timer control;
-4. Reset;
-5. a temporary Completion Feedback banner when feedback exists.
+1. a subtle title row with the interval title, state marker, and state name;
+2. dominant remaining time;
+3. the primary timer control and Reset; and
+4. one subdued progression-context line.
 
-Examples include `Focus Session · Running`, `Short Break · Ready`, and `Long Break · Paused`. Use the canonical interval names; do not shorten either Break name to “Break.”
+A temporary Completion Feedback banner precedes the instrument when feedback exists.
+
+Exact title and context copy:
+
+- A Focus Session title is `Focus Session {n}`. Its context is `Pomodoro Cycle {c} · position {p} of 4`.
+- A Break title is `Short Break` or `Long Break`. Its context is `After Focus Session {n} · Pomodoro Cycle {c} · position {p} of 4`.
+- The state name is exactly `Ready`, `Running`, or `Paused` and sits beside its non-color-only marker.
+- Do not shorten either Break name to “Break.” Context may wrap but must never truncate.
 
 Layout requirements:
 
 - Use a solid theme `canvas` background with no photograph, texture, panel, or decorative mark.
-- Center the timer group both horizontally and vertically in the available space. Roomy Compact uses 16px outer padding and 12px vertical gaps.
-- Tight Compact uses 8px outer padding and 4px vertical gaps so feedback and controls fit at the hard minimum.
+- Center the instrument horizontally and vertically. Remaining time is the unambiguous focal point; the title, state name, and progression context use `muted`, while the state marker alone retains the Focus or Break accent.
+- **Roomy Compact** applies at width 480px and height 360px or greater. Use a 360px maximum instrument width, 24px vertical and 32px horizontal outer padding, and 12px instrument gaps.
+- **Tight Compact** applies otherwise. Use a 292px maximum instrument width, 14px vertical and 20px horizontal outer padding, and 9px instrument gaps.
+- With Completion Feedback at the hard minimum, Tight Compact may reduce vertical outer padding to 6px and instrument gaps to 5px; it must not reduce the timer or control target sizes.
 - Keep the primary action and Reset in one centered horizontal row with an 8px gap.
-- Primary action minimum size: 112×48px. Reset minimum size: 88×48px.
-- Use the visible label **Reset** in Compact mode while retaining the accessible name **Reset Current Interval**.
-- At width 480px and height 360px or greater, use the Roomy Compact timer size. Otherwise use the Tight Compact timer size.
+- Tight Compact minimums are 96×36px for the primary action and 70×36px for Reset. Roomy Compact minimums are 104×40px and 76×40px respectively.
+- Use the visible label **Reset** while retaining the accessible name **Reset Current Interval**.
+- Theme selection is deliberately Full-mode-only. Compact mode keeps the persisted effective theme but exposes no theme affordance; returning to Full mode restores the selected System/Dark/Light preference.
 - Never introduce horizontal scrolling.
-- At 320×240, all core content and a visible Completion Feedback banner must remain operable without overlap or clipping.
-- If a compositor forces dimensions below the hard minimum, preserve identifier, time, and controls in that order with vertical scrolling; never clip controls or introduce horizontal scrolling.
+- At 320×240, all core content and visible Completion Feedback must remain operable without overlap or clipping.
+- If a compositor forces dimensions below the hard minimum, preserve title row, time, controls, and context in that order with vertical scrolling; never clip controls or introduce horizontal scrolling.
 
-The Compact Completion Feedback banner participates in layout above the identifying line rather than covering it. It spans the available width inside 8px outer insets, contains the same title and message as Full feedback, and includes a 44×44 close target. Roomy Compact uses 12px banner padding and the normal feedback type roles. Tight Compact uses 4px vertical and 8px horizontal banner padding, the Tight Compact feedback type roles, and no decorative completion icon. Its two semantic text lines may wrap to additional visual lines; they must never truncate.
+The Compact Completion Feedback banner participates in layout above the instrument rather than covering it. It is at most 420px wide, fills the width available inside the current outer padding, has a 40px minimum height, contains the same title and message as Full feedback, and includes a 32×32 close target. Use `surface`, an 8px radius, no decorative icon, no border, and no shadow. Tight padding is 5px vertically, 4px at the close-button edge, and 10px at the text edge. Its two semantic text lines may wrap to additional visual lines; they must never truncate.
 
 ## Foundation tokens
 
@@ -271,27 +279,32 @@ Any implementation-induced compositing must preserve at least 4.5:1 for normal t
 
 Use one type family. Do not introduce a display, monospace, or serif face.
 
-| Role                           | Size / line height | Weight | Letter spacing |
-| ------------------------------ | ------------------ | -----: | -------------: |
-| Product name                   | 14 / 20px          |    650 |        −0.01em |
-| Theme option                   | 12 / 16px          |    650 |              0 |
-| State label                    | 13 / 18px          |    700 |              0 |
-| Interval name                  | 18 / 24px          |    700 |       −0.015em |
-| Full timer                     | 112 / 101px        |    650 |       −0.035em |
-| State instruction              | 14 / 20px          |    400 |              0 |
-| Context primary                | 14 / 20px          |    650 |              0 |
-| Context secondary              | 12 / 18px          |    400 |              0 |
-| Button                         | 14 / 20px          |    650 |              0 |
-| Cadence title                  | 13 / 18px          |    700 |              0 |
-| Cadence label                  | 12 / 16px          |    650 |              0 |
-| Cadence metadata               | 11 / 14px          |    500 |              0 |
-| Feedback title                 | 14 / 20px          |    700 |              0 |
-| Feedback message               | 13 / 18px          |    400 |              0 |
-| Compact identifier             | 14 / 20px          |    700 |              0 |
-| Roomy Compact timer            | 96 / 86px          |    650 |       −0.035em |
-| Tight Compact timer            | 72 / 65px          |    650 |        −0.03em |
-| Tight Compact feedback title   | 12 / 16px          |    700 |              0 |
-| Tight Compact feedback message | 11 / 14px          |    400 |              0 |
+| Role                     | Size / line height | Weight | Letter spacing |
+| ------------------------ | ------------------ | -----: | -------------: |
+| Product name             | 14 / 20px          |    650 |        −0.01em |
+| Theme option             | 12 / 16px          |    650 |              0 |
+| State label              | 13 / 18px          |    700 |              0 |
+| Interval name            | 18 / 24px          |    700 |       −0.015em |
+| Full timer               | 112 / 101px        |    650 |       −0.035em |
+| State instruction        | 14 / 20px          |    400 |              0 |
+| Context primary          | 14 / 20px          |    650 |              0 |
+| Context secondary        | 12 / 18px          |    400 |              0 |
+| Button                   | 14 / 20px          |    650 |              0 |
+| Cadence title            | 13 / 18px          |    700 |              0 |
+| Cadence label            | 12 / 16px          |    650 |              0 |
+| Cadence metadata         | 11 / 14px          |    500 |              0 |
+| Feedback title           | 14 / 20px          |    700 |              0 |
+| Feedback message         | 13 / 18px          |    400 |              0 |
+| Tight Compact title      | 15 / 20px          |    650 |        −0.01em |
+| Roomy Compact title      | 16 / 20px          |    650 |        −0.01em |
+| Compact state name       | 11 / 14px          |    650 |              0 |
+| Tight Compact context    | 12 / 16px          |    400 |              0 |
+| Roomy Compact context    | 13 / 18px          |    400 |              0 |
+| Tight Compact timer      | 78 / 72px          |    650 |        −0.03em |
+| Roomy Compact timer      | 96 / 86px          |    650 |        −0.03em |
+| Tight Compact button     | 13 / 18px          |    650 |              0 |
+| Compact feedback title   | 12 / 15px          |    700 |              0 |
+| Compact feedback message | 11 / 14px          |    400 |              0 |
 
 The timer must use tabular lining numerals. Always show two minute digits and two second digits (`25:00`, `05:00`, `00:09`). Do not enable a slashed-zero stylistic feature. Do not animate individual digits.
 
@@ -313,8 +326,10 @@ Use a 4px base spacing system:
 Radii:
 
 - small icon/close hover: 8px;
-- buttons: 10px;
-- cadence rail and Completion Feedback: 12px;
+- Full buttons: 10px;
+- Compact buttons: 8px;
+- cadence rail and Full Completion Feedback: 12px;
+- Compact Completion Feedback: 8px;
 - segmented theme control: full pill.
 
 Borders:
@@ -323,7 +338,7 @@ Borders:
 - state/current emphasis: 2px;
 - keyboard focus: 3px plus a 2px canvas-colored separation.
 
-Use no button shadow. The cadence rail has no shadow. Completion Feedback alone may use a compact `0 4px 8px` black shadow at 16% opacity in Light and 40% in Dark, paired with a 1px divider-colored border. Do not use wide diffuse “floating card” shadows.
+Use no button shadow. The cadence rail has no shadow. Full Completion Feedback alone may use a compact `0 4px 8px` black shadow at 16% opacity in Light and 40% in Dark, paired with a 1px divider-colored border. Compact Completion Feedback has neither border nor shadow. Do not use wide diffuse “floating card” shadows.
 
 Layer order is image, scrim, normal content, cadence rail, Completion Feedback, then focus indication. No normal content may establish an arbitrary layer above feedback or focus.
 
@@ -376,6 +391,8 @@ Every state includes visible text and a distinct shape:
 
 Focus Session accents use `primary` in Light and `primary-text` in Dark when drawn as text or a small marker on canvas. Short and Long Break accents use the theme’s `break` token.
 
+Compact mode reduces the marker to a 9px footprint with a 1.5px Ready stroke. Its title and state text use `muted`; only the Ready/Running marker uses the interval accent. The Paused marker remains `muted`. Shape and visible state text continue to carry meaning without color.
+
 ### Remaining-time progress
 
 The 4px-high progress rule represents **time remaining**:
@@ -390,7 +407,7 @@ The track uses `surface-strong`. The fill uses a horizontal scale transform or e
 
 ### Control matrix
 
-The Full control row has a 12px gap; the Compact row has the previously specified 8px gap. Buttons use 16px horizontal padding and the 10px control radius.
+The Full control row has a 12px gap, 16px horizontal button padding, and the 10px control radius. The Compact row has an 8px gap and the 8px control radius; Tight buttons use 13px horizontal padding and Roomy buttons use 15px.
 
 | Timer state | Primary control | Reset Current Interval |
 | ----------- | --------------- | ---------------------- |
@@ -404,7 +421,7 @@ Reset acts immediately without confirmation. It returns the same interval to Rea
 
 #### Primary control states
 
-- Minimum size: 112×44px in Full mode and 112×48px in Compact mode.
+- Minimum size: 112×44px in Full mode; 96×36px in Tight Compact; 104×40px in Roomy Compact.
 - Default: `primary` fill, `on-primary` text, transparent 1px border.
 - Hover: `primary-hover` fill.
 - Active: `primary-active` fill and 1px downward visual translation.
@@ -415,11 +432,12 @@ Reset acts immediately without confirmation. It returns the same interval to Rea
 
 - Full visible label: `Reset Current Interval`.
 - Compact visible label: `Reset`; accessible name remains `Reset Current Interval`.
-- Minimum height: 44px Full, 48px Compact.
-- Default enabled: transparent canvas background, `ink` text, 1px `control-border` boundary.
-- Hover: `surface-hover` background.
+- Minimum size: 44px high in Full, 70×36px in Tight Compact, and 76×40px in Roomy Compact.
+- Full default enabled: transparent canvas background, `ink` text, 1px `control-border` boundary.
+- Compact default enabled: transparent background and border with `muted` text.
+- Hover: `surface-hover` background and `ink` text.
 - Active: `surface-strong` background and 1px downward visual translation.
-- Disabled: `disabled-surface` background, `quiet` text, `divider` border, default cursor, no hover or active change.
+- Full disabled: `disabled-surface` background, `quiet` text, and `divider` border. Compact disabled: transparent background and border with subdued `quiet` text. Both use the default cursor with no hover or active change.
 - Use a native disabled semantic or equivalent platform semantic. A disabled Reset is not in the sequential Tab order.
 
 Timer commands are local and atomic; do not show spinners, progress labels, optimistic loading states, success states, or user-facing command errors. Duplicate or invalid activation must never create a visual error state.
@@ -473,7 +491,7 @@ The Full-mode header contains a text-only segmented control with three options i
 - An operating-system theme change while System is selected updates the effective theme immediately without changing focus or animating the palette.
 - The first visible paint must use the persisted preference and correct effective theme; a Light-to-Dark or Dark-to-Light flash is a failure.
 
-The theme switcher is not rendered in Compact mode. The persisted choice remains in effect, and returning to Full mode restores the control with the same selected preference.
+The theme switcher is not rendered in Compact mode. Changing the preference is deliberately Full-mode-only: the persisted choice remains in effect, and returning to Full mode restores the control with the same selected preference. Compact mode is not required to expose an Appearance menu or substitute theme affordance.
 
 ## Completion Feedback
 
@@ -491,7 +509,7 @@ The toast uses `surface`, a 1px `divider` boundary, 12px radius, 14px padding, a
 
 ### Compact banner
 
-Use the layout-participating banner specified under Compact mode. It uses the same colors, copy, semantics, timing, and close behavior as the Full toast.
+Use the layout-participating banner specified under Compact mode. It uses the same copy, announcement semantics, timing, dismissal behavior, and `surface` foundation as the Full toast, but deliberately omits the decorative icon, border, and shadow and uses its 32×32 close target.
 
 ### Copy and timing
 
@@ -595,18 +613,18 @@ When reduced motion is requested:
 
 The production interface targets **WCAG 2.2 AA**.
 
-- Use one main landmark for the timer and one labelled complementary region for the cadence rail.
-- The visible interval name acts as the timer region’s heading in Full mode. The Compact identifying line provides the equivalent accessible name in Compact mode.
+- Use one main landmark for the timer. Full mode additionally uses one labelled complementary region for the cadence rail.
+- The visible interval name acts as the timer region’s heading in Full mode. The Compact title row provides the equivalent accessible name and includes the Timer Run-relative Focus Session Number when the current interval is a Focus Session.
 - Represent remaining time with a time semantic or equivalent accessible value, including an accessible phrase such as `14 minutes 32 seconds remaining`.
 - Do **not** make the per-second countdown a live region. Screen readers must not announce every tick.
 - Announce user-visible state transitions once (`Timer running`, `Timer paused`, `Focus Session ready`, and equivalent Break text) through a polite status mechanism. Completion Feedback supplies its own one-time announcement.
 - All controls use native button semantics or a fully equivalent platform pattern.
-- All pointer targets are at least 44×44px, exceeding WCAG 2.2’s 24×24 minimum target size.
+- Full-mode pointer targets are at least 44×44px. Compact timer controls are at least 36px high and the Compact feedback close target is 32×32px; every target exceeds WCAG 2.2’s 24×24 minimum.
 - Text remains selectable where the platform normally permits, but selection must not interfere with button activation.
 - No information depends only on color, image, sound, animation, hover, or spatial position.
 - The decorative photo and brand mark are hidden from assistive technology.
 - Hidden responsive content is removed from both sequential focus and the accessibility tree.
-- At 200% text size and at an effective 320 CSS-pixel viewport, content reflows into Compact mode without loss of information or control.
+- At 200% text size and at an effective 320 CSS-pixel viewport, content reflows into Compact mode without losing timer state, remaining time, Timer Run progression, or timer controls. Theme-preference editing deliberately requires Full mode.
 - Completion Feedback never moves focus, and native notification/audio failures never alter the visible timer state.
 
 ## Acceptance matrix
@@ -635,7 +653,7 @@ Test both Light and Dark effective themes at:
 - 320×240 with Completion Feedback;
 - 200% text scaling/zoom until the effective viewport reaches 320 CSS pixels.
 
-At every size, verify no clipped controls, no horizontal scroll, no text truncation, no overlap, no content behind controls, and no focus indicator clipping. At 800×600, the cadence rail must not obscure timer controls. At 320×240 with feedback, the banner, identifier, time, and controls must all remain operable.
+At every size, verify no clipped controls, no horizontal scroll, no text truncation, no overlap, no content behind controls, and no focus indicator clipping. At 800×600, the cadence rail must not obscure timer controls. At 320×240 with feedback, the banner, title row, time, controls, and progression context must all remain operable.
 
 ### State checks
 
@@ -649,11 +667,11 @@ In Full and Compact modes, inspect:
 - Pomodoro Cycle rollover after a Long Break;
 - System preference resolving to both effective themes.
 
-Verify control labels/enabled states, state marker shapes, exact copy, progress behavior, context calculations, cadence current/completed/upcoming treatment, and Compact identifying lines.
+Verify control labels/enabled states, state marker shapes, exact copy, progress behavior, context calculations, cadence current/completed/upcoming treatment, and the Compact title and progression-context lines.
 
 ### Keyboard and assistive-technology checks
 
-- Complete every timer and theme interaction using only Tab, Shift+Tab, Enter, Space, and Escape.
+- Complete every timer interaction in both modes and every theme interaction in Full mode using only Tab, Shift+Tab, Enter, Space, and Escape.
 - Verify the specified Tab order and every focus-continuity transition.
 - Resize across both mode boundaries while each interactive control is focused.
 - Let Completion Feedback auto-dismiss while its close button is focused.
